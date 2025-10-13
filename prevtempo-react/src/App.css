@@ -1,0 +1,36 @@
+.container-weather {
+    max-width: 900px;
+    padding: 20px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.container-weather h1 {
+    font-size: 3rem;
+    color: white;
+}
+
+.container-weather input {
+    padding: 8px;
+    border-radius:20px 0 0 20px;
+    border: none;
+    max-width: 300px;
+    width: 50%;
+    outline: none;
+    margin-top: 2rem;
+}
+
+.container-weather button {
+    background-color: gold;
+    border: none;
+    padding: 8px;
+    border-radius:0 20px 20px 0;  
+    cursor: pointer;  
+    color: black;
+    font-weight: 500;
+    
+}
+
+.container-weather button:hover {
+    background-color: goldenrod;
+}

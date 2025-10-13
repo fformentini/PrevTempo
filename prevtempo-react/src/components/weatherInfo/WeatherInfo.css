@@ -1,0 +1,44 @@
+.weather-container {
+    background-color: rgba(255, 255, 255, 0.800);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 50px 0;
+
+}
+
+.weather-container h1 {
+    color: black;
+}
+
+.weather-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.weather-icon span {
+    font-weight: 500;
+}
+
+
+.weather-infos {
+    display: flex;
+    gap: 20px;
+    justify-content: space-around;
+    margin-top: 2rem;
+}
+
+.weather-infos p {
+    background-color: rgba(255, 217, 0, 0.616);
+    border-radius: 10px;
+    width: 100%;
+}
+
+.weather-infos span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
