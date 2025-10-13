@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 function App() {
   const [weather, setWeather] = useState()
   const [forecast, setForecast] = useState(null)
+  const [loading, setLoading] = useState(false)
   const inputRef = useRef()
 
   async function searchCity() {
@@ -23,6 +24,8 @@ function App() {
     }
 
     try {
+      setLoading(true)
+
       const [currentResponse, forecastResponse] = await Promise.all([
         axios.get(url),
         axios.get(urlForecast)
@@ -41,6 +44,9 @@ function App() {
       toast.error("Cidade não encontrada!")
       console.error("Erro ao buscar cidade:", err)
     }
+    finally {
+      setLoading(false) // ⬅️ Finaliza carregamento
+    }
     
   }
 
@@ -51,8 +57,17 @@ function App() {
       <input ref={inputRef} type="text" placeholder='Digite o nome da cidade' />
       <button onClick={searchCity}>Buscar</button>
 
-      {weather && <WeatherInfo weather={weather} />}
-      {forecast && <Forecast forecast={forecast} />}
+       {/* exibição de loading */}
+      {loading && (
+        <div className="spinner-container">
+          <div className="spinner"></div>
+          <p>Carregando...</p>
+        </div>
+      )}
+
+      {!loading && weather && <WeatherInfo weather={weather} />}
+      {!loading && forecast && <Forecast forecast={forecast} />}
+
 
       <ToastContainer
         position="top-right"
