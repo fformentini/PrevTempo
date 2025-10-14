@@ -25,4 +25,7 @@ Aplicativo de previsão do tempo desenvolvido em **React**, que permite consulta
 
 ---
 
+## Deploy
+
+- https://fformentini.github.io/PrevTempo/
 
