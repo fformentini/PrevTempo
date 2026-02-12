@@ -57,6 +57,12 @@ function App() {
       setLoading(false)
     }
   }
+  function formatCity(data) {
+    const name = data?.location?.name
+    const region = data?.location?.region
+    return [name, region].filter(Boolean).join(" - ")
+  }
+
 
   async function searchCity() {
     const city = inputRef.current.value?.trim()
@@ -67,9 +73,14 @@ function App() {
     }
 
     try {
-      await fetchWeather(city)
-      addToHistory(city) //  salva histórico 
+      const data = await fetchWeather(city)
+
+      const label = formatCity(data) || city
+      addToHistory(label)
+
+      
       inputRef.current.value = ""
+
       toast.success("Cidade encontrada!")
     } catch (err) {
       toast.error("Cidade não encontrada!")
@@ -91,10 +102,13 @@ function App() {
         try {
           const data = await fetchWeather(q)
 
-          if (inputRef.current)
-            inputRef.current.value = data.location.name
+          const label = formatCity(data) || data.location.name
 
-          addToHistory(data.location.name) // histórico localização
+          if (inputRef.current)
+            inputRef.current.value = label
+
+          addToHistory(label)
+
           toast.success("Localização encontrada!")
         } catch (err) {
           toast.error("Não consegui buscar sua localização.")

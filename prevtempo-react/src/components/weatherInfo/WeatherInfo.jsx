@@ -5,7 +5,8 @@ function WeatherInfo({ weather }) {
 
   return (
     <div className='weather-container'>
-      <h1>{weather.location.name}</h1>
+      <h1>{weather?.location?.name}
+  {weather?.location?.region ? ` - ${weather.location.region}` : ""}</h1>
       <p>{weather.location?.localtime.split(" ")[1]}</p>
 
       <div className="weather-icon">
