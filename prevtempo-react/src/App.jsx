@@ -10,7 +10,27 @@ function App() {
   const [weather, setWeather] = useState()
   const [forecast, setForecast] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  // ⭐ HISTÓRICO DE BUSCAS
+  const [history, setHistory] = useState(() => {
+    const saved = localStorage.getItem("search_history")
+    return saved ? JSON.parse(saved) : []
+  })
+
   const inputRef = useRef()
+
+  function addToHistory(city) {
+    const clean = city.trim()
+    if (!clean) return
+
+    const updated = [
+      clean,
+      ...history.filter(c => c.toLowerCase() !== clean.toLowerCase())
+    ].slice(0, 6)
+
+    setHistory(updated)
+    localStorage.setItem("search_history", JSON.stringify(updated))
+  }
 
   async function fetchWeather(q) {
     const apiKey = import.meta.env.VITE_WEATHER_API_KEY
@@ -48,6 +68,8 @@ function App() {
 
     try {
       await fetchWeather(city)
+      addToHistory(city) //  salva histórico 
+      inputRef.current.value = ""
       toast.success("Cidade encontrada!")
     } catch (err) {
       toast.error("Cidade não encontrada!")
@@ -68,7 +90,11 @@ function App() {
 
         try {
           const data = await fetchWeather(q)
-          if (inputRef.current) inputRef.current.value = data.location.name
+
+          if (inputRef.current)
+            inputRef.current.value = data.location.name
+
+          addToHistory(data.location.name) // histórico localização
           toast.success("Localização encontrada!")
         } catch (err) {
           toast.error("Não consegui buscar sua localização.")
@@ -89,21 +115,52 @@ function App() {
       <h1>Previsão do tempo</h1>
 
       <input
-  ref={inputRef}
-  type="text"
-  placeholder='Digite o nome da cidade'
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      searchCity()
-    }
-  }}
-/>
+        ref={inputRef}
+        type="text"
+        placeholder='Digite o nome da cidade'
+        onKeyDown={(e) => {
+          if (e.key === "Enter") searchCity()
+        }}
+      />
+
       <button onClick={searchCity} disabled={loading}>Buscar</button>
+
       <div className="actions">
-      <button onClick={useMyLocation} disabled={loading}>Usar minha localização</button>
+        <button onClick={useMyLocation} disabled={loading}>
+          Usar minha localização
+        </button>
       </div>
 
-      {/* exibição de loading */}
+      {/* Histórico buscas */}
+      {history.length > 0 && (
+        <div className="history">
+          <p>Buscas recentes:</p>
+
+          {history.map(city => (
+            <button
+              key={city}
+              onClick={() => {
+                inputRef.current.value = city
+                searchCity()
+              }}
+              disabled={loading}
+            >
+              {city}
+            </button>
+          ))}
+
+          <button
+            onClick={() => {
+              setHistory([])
+              localStorage.removeItem("search_history")
+            }}
+          >
+            Limpar histórico
+          </button>
+        </div>
+      )}
+
+      {/* LOADING */}
       {loading && (
         <div className="spinner-container">
           <div className="spinner"></div>
@@ -117,11 +174,6 @@ function App() {
       <ToastContainer
         position="top-right"
         autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnHover
-        draggable
       />
     </div>
   )
