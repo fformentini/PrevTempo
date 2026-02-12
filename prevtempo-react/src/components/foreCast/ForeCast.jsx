@@ -6,7 +6,7 @@ function Forecast({ forecast }) {
       <h2>Previsão para os próximos dias</h2>
 
       <div className="forecast-days">
-        {forecast.forecastday.slice(2).map((day) => {
+        {forecast.forecastday.slice(0).map((day) => {
           const date = new Date(day.date)
           const formattedDate = date.toLocaleDateString('pt-BR', {
             weekday: 'long' , 
