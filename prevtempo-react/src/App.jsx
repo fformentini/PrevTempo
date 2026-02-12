@@ -12,16 +12,10 @@ function App() {
   const [loading, setLoading] = useState(false)
   const inputRef = useRef()
 
-  async function searchCity() {
-    const city = inputRef.current.value
+  async function fetchWeather(q) {
     const apiKey = import.meta.env.VITE_WEATHER_API_KEY
-    const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&lang=pt`
-    const urlForecast = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=5&lang=pt`
-
-    if (!city) {
-      toast.warn("Digite o nome da cidade!")
-      return
-    }
+    const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${q}&lang=pt`
+    const urlForecast = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${q}&days=5&lang=pt`
 
     try {
       setLoading(true)
@@ -34,30 +28,82 @@ function App() {
       setWeather(currentResponse.data)
       setForecast(forecastResponse.data.forecast)
 
-      toast.success("Cidade encontrada!")
-
+      return currentResponse.data
     } catch (err) {
-      // Cidade inválida → limpa dados
       setWeather(null)
       setForecast(null)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
 
+  async function searchCity() {
+    const city = inputRef.current.value?.trim()
+
+    if (!city) {
+      toast.warn("Digite o nome da cidade!")
+      return
+    }
+
+    try {
+      await fetchWeather(city)
+      toast.success("Cidade encontrada!")
+    } catch (err) {
       toast.error("Cidade não encontrada!")
       console.error("Erro ao buscar cidade:", err)
     }
-    finally {
-      setLoading(false) // ⬅️ Finaliza carregamento
-    }
-    
   }
 
+  function useMyLocation() {
+    if (!navigator.geolocation) {
+      toast.error("Seu navegador não suporta geolocalização.")
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords
+        const q = `${latitude},${longitude}`
+
+        try {
+          const data = await fetchWeather(q)
+          if (inputRef.current) inputRef.current.value = data.location.name
+          toast.success("Localização encontrada!")
+        } catch (err) {
+          toast.error("Não consegui buscar sua localização.")
+          console.error("Erro ao buscar localização:", err)
+        }
+      },
+      (err) => {
+        if (err.code === 1) toast.warn("Permissão de localização negada.")
+        else if (err.code === 2) toast.warn("Não foi possível obter sua localização.")
+        else toast.warn("Tempo esgotado ao obter localização.")
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
 
   return (
     <div className='container-weather'>
       <h1>Previsão do tempo</h1>
-      <input ref={inputRef} type="text" placeholder='Digite o nome da cidade' />
-      <button onClick={searchCity}>Buscar</button>
 
-       {/* exibição de loading */}
+      <input
+  ref={inputRef}
+  type="text"
+  placeholder='Digite o nome da cidade'
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      searchCity()
+    }
+  }}
+/>
+      <button onClick={searchCity} disabled={loading}>Buscar</button>
+      <div className="actions">
+      <button onClick={useMyLocation} disabled={loading}>Usar minha localização</button>
+      </div>
+
+      {/* exibição de loading */}
       {loading && (
         <div className="spinner-container">
           <div className="spinner"></div>
@@ -68,7 +114,6 @@ function App() {
       {!loading && weather && <WeatherInfo weather={weather} />}
       {!loading && forecast && <Forecast forecast={forecast} />}
 
-
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -78,7 +123,6 @@ function App() {
         pauseOnHover
         draggable
       />
-
     </div>
   )
 }
