@@ -11,7 +11,7 @@ function App() {
   const [forecast, setForecast] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  // ⭐ HISTÓRICO DE BUSCAS
+  //  HISTÓRICO DE BUSCAS
   const [history, setHistory] = useState(() => {
     const saved = localStorage.getItem("search_history")
     return saved ? JSON.parse(saved) : []
@@ -33,7 +33,7 @@ function App() {
   }
 
   async function fetchWeather(q) {
-    const apiKey = import.meta.env.VITE_WEATHER_API_KEY
+    const apiKey = "75458fca84dd40efb4a225241261202"
     const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${q}&lang=pt`
     const urlForecast = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${q}&days=5&lang=pt`
 
